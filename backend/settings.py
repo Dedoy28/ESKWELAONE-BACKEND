@@ -1,4 +1,4 @@
-# backend/settings.py
+# backend/settings.py (FULL UPDATED FILE)
 
 from pathlib import Path
 from datetime import timedelta
@@ -16,6 +16,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG') == 'True'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
+
+# ⭐️⭐️⭐️ ADD THIS LINE ⭐️⭐️⭐️
+# This tells Django to trust Render's proxy for secure (https/wss) connections
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# ⭐️⭐️⭐️ END OF FIX ⭐️⭐️⭐️
 
 # =====================================
 # INSTALLED APPS
@@ -159,7 +164,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379')],
+            "hosts": [os.environ.get('REDIS_URL', 'redis://12.0.0.1:6379')],
         },
     },
 }
