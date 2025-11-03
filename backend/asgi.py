@@ -1,33 +1,28 @@
-# backend/backend/asgi.py
+# backend/asgi.py
 
 import os
 from django.core.asgi import get_asgi_application
-from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.security.websocket import AllowedHostsOriginValidator
 
-# 1. 👈 Import your app's routing (students ALREADY includes reports)
-import students.routing 
-
-# 2. 👈 Import the custom middleware
-from students.middleware import TokenAuthMiddleware
-
-# --- Ensure Django settings are loaded ---
+# --- Step 1: Load Django Settings and Apps ---
+# This MUST come before any other Django-related imports.
+# This line initializes the Django app registry.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings") 
-
-# --- Get standard Django HTTP application ---
 django_asgi_app = get_asgi_application()
 
-# --- Application setup ---
+# --- Step 2: Now it's safe to import Channels and your app's code ---
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
+import students.routing  # <-- Now it's safe to import this
+from students.middleware import TokenAuthMiddleware # <-- And this
+
+# --- Step 3: Define the Application ---
 application = ProtocolTypeRouter({
     "http": django_asgi_app,
     
     "websocket": AllowedHostsOriginValidator(
-        # 3. 👈 Use your TokenAuthMiddleware
         TokenAuthMiddleware(
             URLRouter(
-                # 4. 👈 This is all you need!
-                # students.routing.websocket_urlpatterns already contains
-                # all your routes (students, attendance, reports)
+                # This part was already correct
                 students.routing.websocket_urlpatterns
             )
         )
