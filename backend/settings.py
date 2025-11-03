@@ -3,7 +3,7 @@
 from pathlib import Path
 from datetime import timedelta
 import os
-import dj_database_url  # <-- ADDED
+import dj_database_url
 
 # =====================================
 # BASE DIRECTORY
@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',  # <-- ADDED FOR WHITENOISE
     'django.contrib.staticfiles',
 
     # Third-party
@@ -40,9 +41,7 @@ INSTALLED_APPS = [
 
     # Local apps
     'api',
-    # 📍 FIX: Point to the AppConfig to load your signals
     'students.apps.StudentsConfig',
-    # 'ocrapp',  <- This line is now removed
 ]
 
 # =====================================
@@ -51,6 +50,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # <-- ADDED FOR WHITENOISE
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -113,13 +113,15 @@ USE_I18N = True
 USE_TZ = True
 
 # =====================================
-# STATIC FILES
+# STATIC FILES - (MODIFIED FOR WHITENOISE)
 # =====================================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# <-- ADDED FOR WHITENOISE PRODUCTION
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
