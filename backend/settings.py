@@ -1,4 +1,4 @@
-# backend/settings.py (FULL UPDATED FILE)
+# backend/settings.py (FOR LOCALHOST)
 
 from pathlib import Path
 from datetime import timedelta
@@ -11,40 +11,29 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =====================================
-# SECURITY SETTINGS - (MODIFIED FOR RENDER)
+# SECURITY SETTINGS - (MODIFIED FOR LOCALHOST)
 # =====================================
-SECRET_KEY = os.environ.get('SECRET_KEY')
-DEBUG = os.environ.get('DEBUG') == 'True'
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
-
-# ⭐️⭐️⭐️ ADD THIS LINE ⭐️⭐️⭐️
-# This tells Django to trust Render's proxy for secure (https/wss) connections
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# ⭐️⭐️⭐️ END OF FIX ⭐️⭐️⭐️
+SECRET_KEY = 'a-simple-local-key-for-development-it-can-be-anything'
+DEBUG = True
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # =====================================
 # INSTALLED APPS
 # =====================================
 INSTALLED_APPS = [
-    'daphne',  # Required for ASGI/WebSocket support
-
-    # Django core apps
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'whitenoise.runserver_nostatic',  # <-- ADDED FOR WHITENOISE
+    'whitenoise.runserver_nostatic', 
     'django.contrib.staticfiles',
-
-    # Third-party
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
     'django_filters',
     'channels',
-
-    # Local apps
     'api',
     'students.apps.StudentsConfig',
 ]
@@ -55,7 +44,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # <-- ADDED FOR WHITENOISE
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -90,13 +79,17 @@ TEMPLATES = [
 ]
 
 # =====================================
-# DATABASE (POSTGRESQL) - (MODIFIED FOR RENDER)
+# DATABASE (POSTGRESQL) - (MODIFIED FOR LOCALHOST)
 # =====================================
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'eskwelaone',      # Your local database name
+        'USER': 'postgres',         # Your local postgres username
+        'PASSWORD': 'admin',      # Your local postgres password
+        'HOST': 'localhost',        # Or '127.0.0.1'
+        'PORT': '5432',
+    }
 }
 
 # =====================================
@@ -118,15 +111,14 @@ USE_I18N = True
 USE_TZ = True
 
 # =====================================
-# STATIC FILES - (MODIFIED FOR WHITENOISE)
+# STATIC FILES - (MODIFIED FOR LOCALHOST)
 # =====================================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-# <-- ADDED FOR WHITENOISE PRODUCTION
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -150,21 +142,34 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# =====================================
-# CORS / CSRF CONFIGURATION - (MODIFIED FOR RENDER)
-# =====================================
+# =============================================================
+# ⭐️⭐️⭐️ THIS IS THE FIX ⭐️⭐️⭐️
+# =============================================================
+# CORS / CSRF CONFIGURATION - (MODIFIED FOR LOCALHOST:8080)
+# =============================================================
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+# This should be your local React app's URL
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+]
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+]
+# =============================================================
+# ⭐️⭐️⭐️ END OF FIX ⭐️⭐️⭐️
+# =============================================================
 
 # =====================================
-# CHANNELS + REDIS CONFIGURATION - (MODIFIED FOR RENDER)
+# CHANNELS + REDIS CONFIGURATION - (MODIFIED FOR LOCALHOST)
 # =====================================
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [os.environ.get('REDIS_URL', 'redis://12.0.0.1:6379')],
+            # This points to your local Redis server
+            "hosts": [('127.0.0.1', 6379)],
         },
     },
 }

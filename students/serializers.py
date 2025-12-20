@@ -1,5 +1,5 @@
 # /backend/students/serializers.py
-# ⭐️ FINAL CORRECTED FILE: Includes 'adviser_name' in history ⭐️
+# ⭐️ FINAL CORRECTED FILE: Fixed 'section' to return Object, not String ⭐️
 
 from rest_framework import serializers, validators
 from django.contrib.auth.models import User
@@ -42,7 +42,6 @@ class SubjectSerializer(serializers.ModelSerializer):
 class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        # ⭐️ FIX: Added 'adviser_name' so history shows the teacher!
         fields = ['id', 'name', 'school_year', 'grade', 'adviser_name']
 
 # ============================
@@ -285,7 +284,10 @@ class StudentSerializer(serializers.ModelSerializer):
         read_only=True
     )
     grade = serializers.SerializerMethodField()
+    
+    # ⭐️ FIX: Changed from string to SectionSerializer ⭐️
     section = serializers.SerializerMethodField()
+    
     adviser_name = serializers.SerializerMethodField()
     
     class Meta:
@@ -329,8 +331,11 @@ class StudentSerializer(serializers.ModelSerializer):
         return enrollment.section.grade if enrollment else None
 
     def get_section(self, obj):
+        # ⭐️ FIX: Return the full Section Object, not just name string!
         enrollment = self.get_current_enrollment_obj(obj)
-        return enrollment.section.name if enrollment else None
+        if enrollment and enrollment.section:
+            return SectionSerializer(enrollment.section).data
+        return None
 
     def get_adviser_name(self, obj):
         enrollment = self.get_current_enrollment_obj(obj)
